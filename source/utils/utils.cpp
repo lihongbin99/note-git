@@ -1,4 +1,5 @@
 #include <iostream>
+#include <time.h>
 #include "utils.h"
 
 using namespace std;
