@@ -10,6 +10,7 @@ ULONGLONG lastUpdateTime = 0;
 
 string commitS = "git commit -m \"commit: ";
 void pushGit(string date) {
+    cout << "exec git add" << endl;
     int code = system("git add ./");
     if (code != 0) {
         cout << "git add error: " << code << endl;
@@ -17,20 +18,23 @@ void pushGit(string date) {
         return;
     }
 
+    cout << "exec git commit" << endl;
     code = system((commitS + date + "\"").c_str());
     if (code != 0) {
         cout << "git commit error: " << code << endl;
         return;
     }
 
+    cout << "exec git pull" << endl;
     code = system("git pull");
-    if (code != 0) {
-        cout << "git pull error: " << code << endl;
-        return;
+    if (code != 0) {// 有文件冲突
+        cout << "exec git add" << endl;
+        code = system("git add ./");
+        cout << "exec git commit" << endl;
+        code = system((commitS + date + "\"").c_str());
     }
 
-    code = system((commitS + date + "\"").c_str());
-
+    cout << "exec git push" << endl;
     code = system("git push -u origin master");
     if (code != 0) {
         cout << "git push error: " << code << endl;
@@ -48,7 +52,7 @@ DWORD WINAPI gitMain(LPVOID lpParameter) {
             continue;
         }
 
-        if (TimeMilliSecond() - lastUpdateTime > 30000) {
+        if (TimeMilliSecond() - lastUpdateTime > 10000) {
             tempTime = lastUpdateTime;
 
             // 更新
