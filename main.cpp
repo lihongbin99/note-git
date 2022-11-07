@@ -1,33 +1,12 @@
-#include <string>
-#include <fstream>
-#include <iostream>
 #include <windows.h>
 #include "utils.h"
 #include "git.h"
 
-using namespace std;
+#include <iostream>
 
 void parseChange(WCHAR *data);
-
-int main() {
-    ios::sync_with_stdio(false);
-    setlocale(LC_CTYPE, "");
-
-    // 初始化
-    gitInit();
-
-    // ifstream ifs;
-    // ifs.open("config", ios::in);
-    // if (!ifs.is_open()) {
-    //     cout << "获取配置文件失败" << endl;
-    //     showError(GetLastError());
-    //     return EXIT_FAILURE;
-    // }
-    // PSTR config = new CHAR[100];
-    // memset(config, 0, 100);
-    // while (ifs >> config) { }
-    // PCWSTR baseDir = (PCWSTR) config + 1;
-    // wcout << L"监听目录: " << baseDir << endl;
+int main(int argc, char *argv[]) {
+    setlocale(LC_ALL, "chs");
 
     HANDLE noteDir = CreateFileW(L".\\note",
         FILE_LIST_DIRECTORY,
@@ -37,21 +16,29 @@ int main() {
         FILE_FLAG_BACKUP_SEMANTICS  | FILE_FLAG_OVERLAPPED,
         NULL);
     if (noteDir == INVALID_HANDLE_VALUE) {
-        cout << "监听目录失败" << endl;
+        wprintf(L"监听目录失败...\n");
         showError(GetLastError());
         return EXIT_FAILURE;
     }
+    wprintf(L"开始监听成功...\n");
+
+    // 初始化
+    if (argc >= 3) {
+        gitInit(atoi(argv[1]), atoi(argv[2]));
+    } if (argc >= 2) {
+        gitInit(atoi(argv[1]), 10);
+    } else {
+        gitInit(30, 10);
+    }
 
     WCHAR data[1024];
-    memset(data, 0, 1024);
+    memset(data, 0, sizeof(data));
     DWORD len = 0;
 
-    cout << "开始监听成功..." << endl;
-    BOOL readResult;
     while (true) {
-        readResult = ReadDirectoryChangesW(noteDir,
+        BOOL readResult = ReadDirectoryChangesW(noteDir,
             &data,
-            sizeof(data),
+            sizeof(data) / 2,
             TRUE,
             FILE_NOTIFY_CHANGE_FILE_NAME | FILE_NOTIFY_CHANGE_DIR_NAME | FILE_NOTIFY_CHANGE_LAST_WRITE,
             (LPDWORD)&len,
@@ -60,28 +47,22 @@ int main() {
         );
 
         if (!readResult) {
-            cout << "监听过程失败" << endl;
+            wprintf(L"监听过程失败\n");
             showError(GetLastError());
             return EXIT_FAILURE;
         }
-
-        len /= 2;
-        if (len < 6) {
-            cout << "ReadDirectoryChangesW len error: " << len << endl;
-            printArr(data, len);
-            MessageBoxW(NULL, L"监听返回长度错误", L"错误", MB_OK);
-            return EXIT_FAILURE;
+        if (len <= 6) {
+            continue;
         }
 
         fileUpdate();
-        continue;
 
         // 解析
-        parseChange(data);
+        // parseChange(data);
 
         // 重置
-        // memset(data, 0, len);
-        // len = 0;
+        memset(data, 0, len);
+        len = 0;
     }
 
     return EXIT_SUCCESS;
@@ -109,8 +90,7 @@ void parseChange(WCHAR *data) {
         actionType = L"新文件名";
     }
 
-    wstring name = wstring(data + 6, data + 6 + fileNameLength);
-    wcout << actionType << L": " << name << endl;
+    wprintf(L"%ls: %ls\n", actionType, data+6);
 
     if (nextEntryOffset != 0) {
         parseChange(data + nextEntryOffset);

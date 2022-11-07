@@ -1,2 +1,2 @@
-g++ -fexec-charset=GBK -I .\include\utils -I .\include\core -o .\bin\note-git.exe main.cpp .\source\utils\utils.cpp .\source\core\git.cpp && .\bin\note-git.exe
+g++ -o .\bin\note-git.exe -I .\include\utils -I .\include\core main.cpp .\source\utils\utils.cpp .\source\core\git.cpp
 pause

@@ -1,4 +1,4 @@
 #pragma once
 
-void gitInit();
+void gitInit(int pushIntervalTime, int pullIntervalTime);
 void fileUpdate();
