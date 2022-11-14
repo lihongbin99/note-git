@@ -74,6 +74,7 @@ DWORD WINAPI gitMain(LPVOID lpParameter) {
 void gitInit(int pushIntervalTime, int pullIntervalTime) {
     ::pushIntervalTime = pushIntervalTime;
     ::pullIntervalTime = pullIntervalTime;
+    lastPullTime = TimeMilliSecond() - (pullIntervalTime * 60000 - 30000);
     CreateThread(NULL, 0, gitMain, NULL, 0, NULL);
 }
 
