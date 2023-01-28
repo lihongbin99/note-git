@@ -1,0 +1,20 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "cppbuild",
+			"label": "note-git",
+			"command": "cl.exe",
+			"args": [
+				"/Zi",
+				"/Fe${fileDirname}\\bin\\note-git.exe",
+				"${fileDirname}\\utils.cpp", "${fileDirname}\\git.cpp", "${fileDirname}\\main.cpp",
+				"/link",
+				"user32.lib"
+			],
+			"group": {
+				"isDefault": true
+			},
+		}
+	]
+}
